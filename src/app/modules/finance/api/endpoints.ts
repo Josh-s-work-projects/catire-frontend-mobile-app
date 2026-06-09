@@ -1,0 +1,1 @@
+export type FinanceEndpoints = 'purchases' | 'purchases/report';

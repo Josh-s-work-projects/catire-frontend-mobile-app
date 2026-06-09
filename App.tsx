@@ -1,20 +1,18 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import AppQueryProvider from './src/app/core/providers/QueryProvider';
+import MainNavigator from './src/app/navigation/MainNavigator';
+import { useAuthStore } from './src/app/core/store/auth.store';
 
 export default function App() {
+  const validate = useAuthStore((s) => s.validate);
+
+  useEffect(() => {
+    validate();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <AppQueryProvider>
+      <MainNavigator />
+    </AppQueryProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

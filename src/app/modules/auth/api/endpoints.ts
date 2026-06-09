@@ -1,0 +1,1 @@
+export type AuthEndpoints = 'login' | 'validate' | 'check-permission' | 'users' | 'users/report';

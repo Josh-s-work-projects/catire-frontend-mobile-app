@@ -1,0 +1,1 @@
+export type OrderEndpoints = 'orders' | 'orders/report';

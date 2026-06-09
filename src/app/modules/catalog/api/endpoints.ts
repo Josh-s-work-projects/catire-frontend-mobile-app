@@ -1,0 +1,1 @@
+export type CatalogEndpoints = 'branches' | 'menus' | 'products' | 'products/report';
