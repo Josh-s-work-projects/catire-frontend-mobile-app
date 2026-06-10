@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import catalogApi from '../../../api/catalog.api';
-import type { Branch } from '../../../../../core/types';
+import type { Branch } from '../../../../../shared/types';
 import { useNavigation } from '@react-navigation/native';
 
 export default function BranchList() {

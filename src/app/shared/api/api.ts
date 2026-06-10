@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Endpoint, Services } from './urls';
+import { ApiResponse } from './models';
 
 export class Api {
   private apiUrl = '';
@@ -17,7 +18,7 @@ export class Api {
     });
   }
 
-  async get(service: Services, endpoint: Endpoint, token: string, id?: number | string) {
+  async get<R>(service: Services, endpoint: Endpoint, token: string, id?: number | string): Promise<ApiResponse<R>> {
     try {
       let route = `${service}/${endpoint}`;
       if(id) route += `/${id}`
@@ -40,15 +41,16 @@ export class Api {
       }
     } catch (error) {
       console.log(error);
+
       return {
         error: true,
-        message: error,
+        message: error as string,
         data: null
       }
     }
   }
 
-  async post<D, R>(service: Services, endpoint: Endpoint, data: D, token?: string) {
+  async post<D, R>(service: Services, endpoint: Endpoint, data: D, token?: string): Promise<ApiResponse<R>> {
     try {
       const config = token ?  { headers: { authorization: `Bearer ${token}` } } : undefined;
 
@@ -68,15 +70,16 @@ export class Api {
       }
     } catch (error) {
       console.log(error);
+      
       return {
         error: true,
-        message: error,
+        message: error as string,
         data: null
       }
     }
   }
 
-  async patch<D, R>(service: Services, endpoint: Endpoint, data: D, token: string) {
+  async patch<D, R>(service: Services, endpoint: Endpoint, data: D, token: string): Promise<ApiResponse<R>> {
     try {
       const res = await this.apiClient.patch(`${service}/${endpoint}`, data, {
         headers: { authorization: `Bearer ${token}` }
@@ -96,15 +99,16 @@ export class Api {
       }
     } catch (error) {
       console.log(error);
+
       return {
         error: true,
-        message: error,
+        message: error as string,
         data: null
       }
     }
   }
 
-  async delete(service: Services, endpoint: Endpoint, token: string) {
+  async delete<R>(service: Services, endpoint: Endpoint, token: string): Promise<ApiResponse<R>> {
     try {
       const res = await this.apiClient.delete(`${service}/${endpoint}`, {
         headers: { authorization: `Bearer ${token}` }
@@ -124,9 +128,10 @@ export class Api {
       }
     } catch (error) {
       console.log(error);
+
       return {
         error: true,
-        message: error,
+        message: error as string,
         data: null
       }
     }

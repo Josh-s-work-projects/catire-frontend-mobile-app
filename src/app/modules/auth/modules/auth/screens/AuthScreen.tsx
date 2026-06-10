@@ -1,21 +1,62 @@
-import React from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LoginForm from '../forms/LoginForm';
-import { useNavigation } from '@react-navigation/native';
+import RegisterForm from '../forms/RegisterForm';
+import { styles } from '../styles/auth.styles';
+import { Image } from 'expo-image'
+
+const Logo = require('../../../../../../../assets/logo.png')
 
 export default function AuthScreen() {
-	const navigation = useNavigation();
+  const [isLogin, setIsLogin] = useState(true);
 
-	return (
-		<SafeAreaView style={{ flex: 1, justifyContent: 'center', backgroundColor: '#FDFDFD' }}>
-			<View style={{ padding: 24 }}>
-				<Text style={{ fontSize: 28, fontWeight: '700', color: '#EC3137', marginBottom: 12 }}>Catire Hot Dog</Text>
-				<Text style={{ fontSize: 16, marginBottom: 24 }}>Welcome — sign in to continue</Text>
-				<LoginForm />
-				<TouchableOpacity onPress={() => navigation.navigate('Register' as never)} style={{ marginTop: 12 }}>
-					<Text style={{ color: '#EC3137', fontWeight: '600' }}>Create an account</Text>
-				</TouchableOpacity>
-			</View>
-		</SafeAreaView>
-	);
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        
+        {/* Cabecera del Logo */}
+        <View style={styles.headerContainer}>
+          <View style={styles.logoPlaceholder}>
+            <Image
+              source={Logo}
+              style={{
+                width: 150,
+                height: 150,
+              }}
+            />
+          </View>
+          <Text style={styles.subtitle}>DESDE 2003</Text>
+        </View>
+
+        {/* Tarjeta Neo-brutalista */}
+        <View style={styles.cardShadow}>
+          <View style={styles.card}>
+            <Text style={styles.title}>
+              {isLogin ? '¡BIENVENIDO DE VUELTA!' : '¡ÚNETE A LA FAMILIA!'}
+            </Text>
+            <Text style={styles.description}>
+              {isLogin 
+                ? 'Ingresa de forma segura para explorar las sucursales y pedir el menú.' 
+                : 'Crea tu cuenta para disfrutar del mejor sabor criollo premium.'}
+            </Text>
+
+            {isLogin ? <LoginForm /> : <RegisterForm />}
+
+            <View style={styles.toggleContainer}>
+              <Text style={styles.toggleText}>
+                {isLogin ? '¿AÚN NO TIENES CUENTA?' : '¿YA TIENES UNA CUENTA?'}
+              </Text>
+              <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
+                <Text style={styles.toggleLink}>
+                  {isLogin ? 'REGÍSTRATE AQUÍ - ES GRATIS' : 'INICIA SESIÓN AQUÍ'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
+  );
 }

@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import catalogApi from '../../../api/catalog.api';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import type { Product } from '../../../../../core/types';
+import type { Product } from '../../../../../shared/types';
 
 export default function ProductsList() {
   const route = useRoute();

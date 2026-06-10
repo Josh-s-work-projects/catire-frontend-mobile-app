@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Button, SafeAreaView } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import type { Product } from '../../../../../core/types';
-import { useCartStore } from '../../../../../core/store/cart.store';
+import { useCartStore } from '../../../../../shared/store/cart.store';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProductDetails() {
   const route = useRoute();

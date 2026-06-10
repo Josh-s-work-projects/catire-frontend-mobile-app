@@ -4,7 +4,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, LatLng } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useQuery } from '@tanstack/react-query';
 import catalogApi from '../../../api/catalog.api';
-import type { Branch } from '../../../../../core/types';
+import type { Branch } from '../../../../../shared/types';
 
 export default function BranchesMap() {
 	const { data: branches = [], isLoading } = useQuery<Branch[]>(['branches-map'], catalogApi.getBranches);

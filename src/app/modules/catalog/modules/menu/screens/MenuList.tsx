@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import catalogApi from '../../../api/catalog.api';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import type { Menu } from '../../../../../core/types';
+import type { Menu } from '../../../../../shared/types';
 
 export default function MenuList() {
 	const route = useRoute();

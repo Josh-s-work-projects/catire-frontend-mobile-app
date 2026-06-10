@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import ordersApi from '../../../api/orders.api';
-import type { Order } from '../../../../../core/types';
+import type { Order } from '../../../../../shared/types';
 
 export default function OrdersList() {
 	const { data: orders = [], isLoading } = useQuery(['orders'], ordersApi.listOrders);

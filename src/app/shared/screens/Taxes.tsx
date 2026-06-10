@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, TextInput, Button } from 'react-native';
+import { View, Text, TextInput, Button } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TAX_KEY = 'catire_taxes_v1';
 

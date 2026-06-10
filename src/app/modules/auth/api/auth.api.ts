@@ -1,29 +1,22 @@
-import { Api } from '../../../../shared/api';
-import type { User } from '../../../core/types';
+import { Api } from '../../../shared/api/api';
+import { ApiResponse } from '../../../shared/api/models';
+import { AccessTokenDTO, LoginDTO } from '../models/Auth';
+import { User, UserDTO } from '../models/User';
 
 const client = new Api();
 
-type LoginResponse = { token: string; user: User };
-
-const login = async (email: string, password: string): Promise<LoginResponse> => {
-  const res = await client.post('auth', 'login', { email, password });
-  if (res.error) throw new Error(String(res.message));
-  return res.data as LoginResponse;
+const login = async (email: string, password: string): Promise<ApiResponse<AccessTokenDTO>> => {
+  return await client.post<LoginDTO, AccessTokenDTO>('auth', 'login', {
+    email, password
+  });
 };
 
-const validate = async (token: string): Promise<User> => {
-  const res = await client.post('auth', 'validate', { token });
-  if (res.error) throw new Error(String(res.message));
-  return res.data as User;
+const validate = async (token: string): Promise<ApiResponse<User>> => {
+  return await client.post<{ token: string }, User>('auth', 'validate', { token });
 };
 
-const register = async (payload: { full_name: string; email: string; password: string; dni?: number; phone_1?: string; phone_2?: string; role_id?: number }) => {
-  // Use POST /auth/users as register endpoint; default role_id should be provided by caller
-  const data = { ...payload };
-  if (!data.role_id) data.role_id = 1; // default to client
-  const res = await client.post('auth', 'users', data as any);
-  if (res.error) throw new Error(String(res.message));
-  return res.data;
+const register = async (payload: UserDTO): Promise<ApiResponse<User>> => {
+  return await client.post<UserDTO, User>('auth', 'register', payload);
 };
 
 export default { login, validate, register };

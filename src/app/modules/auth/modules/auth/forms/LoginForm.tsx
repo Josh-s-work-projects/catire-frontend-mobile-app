@@ -1,54 +1,85 @@
-import React from 'react';
-import { View, Text, TextInput, Button } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuthStore } from '../../../../../core/store/auth.store';
+import { useAuthStore } from '../../../../../shared/store/auth.store';
+import { styles } from '../styles/auth.styles';
 
 const schema = z.object({
-	email: z.string().email(),
-	password: z.string().min(6),
+  email: z.string().email('Correo electrónico inválido'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 export default function LoginForm() {
-	const { control, handleSubmit, formState } = useForm<FormValues>({
-		resolver: zodResolver(schema),
-		defaultValues: { email: '', password: '' },
-	});
+  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '', password: '' },
+  });
 
-	const login = useAuthStore((s) => s.login);
+  const { login, loading, error, clearAuthError } = useAuthStore();
 
-	const onSubmit = async (data: FormValues) => {
-		try {
-			await login(data.email, data.password);
-		} catch (e) {
-			// swallow for now
-		}
-	};
+  useEffect(() => {
+    return () => clearAuthError();
+  }, []);
 
-	return (
-		<View style={{ padding: 16 }}>
-			<Controller
-				control={control}
-				name="email"
-				render={({ field: { onChange, value } }) => (
-					<TextInput placeholder="Email" value={value} onChangeText={onChange} style={{ borderWidth: 1, padding: 8, marginBottom: 8 }} />
-				)}
-			/>
-			{formState.errors.email && <Text style={{ color: 'red' }}>{String(formState.errors.email?.message)}</Text>}
+  const onSubmit = async (data: FormValues) => {
+    await login({ email: data.email, password: data.password });
+  };
 
-			<Controller
-				control={control}
-				name="password"
-				render={({ field: { onChange, value } }) => (
-					<TextInput placeholder="Password" value={value} onChangeText={onChange} secureTextEntry style={{ borderWidth: 1, padding: 8, marginBottom: 8 }} />
-				)}
-			/>
-			{formState.errors.password && <Text style={{ color: 'red' }}>{String(formState.errors.password?.message)}</Text>}
+  return (
+    <View>
+      {error && <Text style={styles.errorBanner}>{error}</Text>}
 
-			<Button title="Login" onPress={handleSubmit(onSubmit)} />
-		</View>
-	);
+      <Text style={styles.label}>CORREO ELECTRÓNICO:</Text>
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            placeholder="cliente@ejemplo.com"
+            value={value}
+            onChangeText={(text) => { onChange(text); clearAuthError(); }}
+            style={[styles.input, errors.email && styles.inputError]}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+        )}
+      />
+      {errors.email && <Text style={styles.errorText}>{String(errors.email.message)}</Text>}
+
+      <Text style={styles.label}>CONTRASEÑA:</Text>
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            placeholder="••••••••"
+            value={value}
+            onChangeText={(text) => { onChange(text); clearAuthError(); }}
+            secureTextEntry
+            style={[styles.input, errors.password && styles.inputError]}
+          />
+        )}
+      />
+      {errors.password && <Text style={styles.errorText}>{String(errors.password.message)}</Text>}
+
+      <View style={styles.buttonShadow}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleSubmit(onSubmit)}
+          disabled={loading}
+          activeOpacity={0.9}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.buttonText}>INICIAR SESIÓN</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }

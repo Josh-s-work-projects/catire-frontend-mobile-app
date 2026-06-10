@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import financeApi from '../../../api/finance.api';
-import type { Purchase } from '../../../../../core/types';
+import type { Purchase } from '../../../../../shared/types';
 
 export default function PurchasesList() {
 	const { data: purchases = [], isLoading } = useQuery(['purchases'], financeApi.listPurchases);

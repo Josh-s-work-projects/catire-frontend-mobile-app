@@ -1,4 +1,4 @@
-import { NameTag, OrderStatusType } from "../../../../shared/enums";
+import { NameTag, OrderStatusType } from "../../../shared/api/enums";
 
 export interface OrderAddress {
   street: number;

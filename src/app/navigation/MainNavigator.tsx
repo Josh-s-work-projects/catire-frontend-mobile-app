@@ -2,7 +2,6 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AuthScreen from '../modules/auth/modules/auth/screens/AuthScreen';
-import Register from '../modules/auth/modules/auth/screens/Register';
 import BranchList from '../modules/catalog/modules/branches/screens/BranchList';
 import MenuList from '../modules/catalog/modules/menu/screens/MenuList';
 import OrdersList from '../modules/orders/modules/orders/screens/OrdersList';
@@ -10,12 +9,12 @@ import BranchesMap from '../modules/catalog/modules/branches/screens/BranchesMap
 import ProductsList from '../modules/catalog/modules/products/screens/ProductsList';
 import ProductDetails from '../modules/catalog/modules/products/screens/ProductDetails';
 import PurchasesList from '../modules/finance/modules/purchases/screens/PurchasesList';
-import { useAuthStore } from '../core/store/auth.store';
-import AdminHome from '../core/screens/AdminHome';
-import Taxes from '../core/screens/Taxes';
-import ProductsAdmin from '../core/screens/ProductsAdmin';
-import UsersAdmin from '../core/screens/UsersAdmin';
-import RolesAdmin from '../core/screens/RolesAdmin';
+import { useAuthStore } from '../shared/store/auth.store';
+import AdminHome from '../shared/screens/AdminHome';
+import Taxes from '../shared/screens/Taxes';
+import ProductsAdmin from '../shared/screens/ProductsAdmin';
+import UsersAdmin from '../shared/screens/UsersAdmin';
+import RolesAdmin from '../shared/screens/RolesAdmin';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,7 +28,6 @@ export default function MainNavigator() {
         {!token ? (
           <>
             <Stack.Screen name="Login" component={AuthScreen} />
-            <Stack.Screen name="Register" component={Register} />
           </>
         ) : (
           <>
