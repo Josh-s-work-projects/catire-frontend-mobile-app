@@ -19,7 +19,7 @@ export default function LoginForm() {
     defaultValues: { email: '', password: '' },
   });
 
-  const { login, loading, error, clearAuthError } = useAuthStore();
+  const { login, loading, error, clearAuthError, token } = useAuthStore();
 
   useEffect(() => {
     return () => clearAuthError();

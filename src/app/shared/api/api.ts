@@ -1,20 +1,22 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { Endpoint, Services } from './urls';
 import { ApiResponse } from './models';
+import { IP } from '../constants/IP';
 
 export class Api {
   private apiUrl = '';
   private apiClient;
   
   constructor() {
-    this.apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost/api';
+    this.apiUrl = process.env.EXPO_PUBLIC_API_URL || '';
     this.apiClient = axios.create({
-      baseURL: this.apiUrl,
+      baseURL: this.apiUrl.replace('localhost', IP),
       timeout: 15000,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-      }
+      },
+      validateStatus: (status) => status >= 200 && status < 500,
     });
   }
 
@@ -27,7 +29,7 @@ export class Api {
         headers: { authorization: `Bearer ${token}` }
       })
 
-      if (res.status !== 200)
+      if (res.status < 200 || res.status > 299)
         return {
           error: true,
           message: res.data.message,
@@ -40,11 +42,9 @@ export class Api {
         data: res.data
       }
     } catch (error) {
-      console.log(error);
-
       return {
         error: true,
-        message: error as string,
+        message: error instanceof AxiosError ? error.message : error as string,
         data: null
       }
     }
@@ -56,7 +56,7 @@ export class Api {
 
       const res = await this.apiClient.post(`${service}/${endpoint}`, data, config)
 
-      if (res.status !== 200)
+      if (res.status < 200 || res.status > 299)
         return {
           error: true,
           message: res.data.message,
@@ -69,11 +69,9 @@ export class Api {
         data: res.data as R
       }
     } catch (error) {
-      console.log(error);
-      
       return {
         error: true,
-        message: error as string,
+        message: error instanceof AxiosError ? error.message : error as string,
         data: null
       }
     }
@@ -85,7 +83,7 @@ export class Api {
         headers: { authorization: `Bearer ${token}` }
       })
 
-      if (res.status !== 200)
+      if (res.status < 200 || res.status > 299)
         return {
           error: true,
           message: res.data.message,
@@ -98,11 +96,9 @@ export class Api {
         data: res.data as R
       }
     } catch (error) {
-      console.log(error);
-
       return {
         error: true,
-        message: error as string,
+        message: error instanceof AxiosError ? error.message : error as string,
         data: null
       }
     }
@@ -114,7 +110,7 @@ export class Api {
         headers: { authorization: `Bearer ${token}` }
       });
 
-      if (res.status !== 200)
+      if (res.status < 200 || res.status > 299)
         return {
           error: true,
           message: res.data.message,
@@ -127,11 +123,9 @@ export class Api {
         data: res.data
       }
     } catch (error) {
-      console.log(error);
-
       return {
         error: true,
-        message: error as string,
+        message: error instanceof AxiosError ? error.message : error as string,
         data: null
       }
     }

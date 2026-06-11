@@ -3,10 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AuthScreen from '../modules/auth/modules/auth/screens/AuthScreen';
 import BranchList from '../modules/catalog/modules/branches/screens/BranchList';
-import MenuList from '../modules/catalog/modules/menu/screens/MenuList';
 import OrdersList from '../modules/orders/modules/orders/screens/OrdersList';
 import BranchesMap from '../modules/catalog/modules/branches/screens/BranchesMap';
-import ProductsList from '../modules/catalog/modules/products/screens/ProductsList';
 import ProductDetails from '../modules/catalog/modules/products/screens/ProductDetails';
 import PurchasesList from '../modules/finance/modules/purchases/screens/PurchasesList';
 import { useAuthStore } from '../shared/store/auth.store';
@@ -15,6 +13,8 @@ import Taxes from '../shared/screens/Taxes';
 import ProductsAdmin from '../shared/screens/ProductsAdmin';
 import UsersAdmin from '../shared/screens/UsersAdmin';
 import RolesAdmin from '../shared/screens/RolesAdmin';
+import { MenuList } from '../modules/catalog/modules/menu/screens/MenuList';
+import { Navbar } from '../shared/components/Navbar/Navbar';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,17 +24,16 @@ export default function MainNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator>
         {!token ? (
           <>
-            <Stack.Screen name="Login" component={AuthScreen} />
+            <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
           </>
         ) : (
-          <>
-            <Stack.Screen name="Branches" component={BranchList} />
+          <Stack.Group screenOptions={{ header: () => <Navbar /> }}>
             <Stack.Screen name="BranchesMap" component={BranchesMap} />
+            <Stack.Screen name="Branches" component={BranchList} />
             <Stack.Screen name="MenuList" component={MenuList} />
-            <Stack.Screen name="ProductsList" component={ProductsList} />
             <Stack.Screen name="ProductDetails" component={ProductDetails} />
             {user?.role?.name === 'admin' && <Stack.Screen name="Admin" component={AdminHome} />}
             {user?.role?.name === 'admin' && <Stack.Screen name="Taxes" component={Taxes} />}
@@ -43,7 +42,7 @@ export default function MainNavigator() {
             {user?.role?.name === 'admin' && <Stack.Screen name="RolesAdmin" component={RolesAdmin} />}
             <Stack.Screen name="Orders" component={OrdersList} />
             <Stack.Screen name="Purchases" component={PurchasesList} />
-          </>
+          </Stack.Group>
         )}
       </Stack.Navigator>
     </NavigationContainer>

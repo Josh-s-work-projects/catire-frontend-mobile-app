@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LoginForm from '../forms/LoginForm';
 import RegisterForm from '../forms/RegisterForm';
 import { styles } from '../styles/auth.styles';
 import { Image } from 'expo-image'
+import { useCatalogStore } from '../../../../catalog/store/catalog.store';
+import { useOrdersStore } from '../../../../orders/store/orders.store';
+import { useFinanceStore } from '../../../../finance/store/finance.store';
 
-const Logo = require('../../../../../../../assets/logo.png')
+const Logo = require('@assets/logo.png')
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
+
+  useEffect(() => {
+    useCatalogStore.persist.clearStorage();
+    useOrdersStore.persist.clearStorage();
+    useFinanceStore.persist.clearStorage();
+  }, [])
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         
-        {/* Cabecera del Logo */}
         <View style={styles.headerContainer}>
           <View style={styles.logoPlaceholder}>
             <Image
@@ -29,7 +37,6 @@ export default function AuthScreen() {
           <Text style={styles.subtitle}>DESDE 2003</Text>
         </View>
 
-        {/* Tarjeta Neo-brutalista */}
         <View style={styles.cardShadow}>
           <View style={styles.card}>
             <Text style={styles.title}>

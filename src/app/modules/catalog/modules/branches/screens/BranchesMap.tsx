@@ -1,50 +1,102 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Platform, Linking } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, LatLng } from 'react-native-maps';
-import * as Location from 'expo-location';
-import { useQuery } from '@tanstack/react-query';
-import catalogApi from '../../../api/catalog.api';
-import type { Branch } from '../../../../../shared/types';
+import { View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { useCatalogStore } from '../../../store/catalog.store';
+import { useAuthStore } from '../../../../../shared/store/auth.store';
+import { Branch } from '../../../models/Branch';
+import { styles } from '../styles/branch.styles';
+import { CLEAN_MAP_STYLE } from '../constants/branch.maps';
+import { theme } from '../../../../../shared/styles/theme';
 
 export default function BranchesMap() {
-	const { data: branches = [], isLoading } = useQuery<Branch[]>(['branches-map'], catalogApi.getBranches);
-	const [region, setRegion] = useState<any | null>(null);
+  const navigation = useNavigation<any>();
+  const token = useAuthStore((s) => s.token);
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  const { branches, fetchBranches, loading } = useCatalogStore(); 
+  
+  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
 
-	useEffect(() => {
-		(async () => {
-			try {
-				const { status } = await Location.requestForegroundPermissionsAsync();
-				if (status === 'granted') {
-					const loc = await Location.getCurrentPositionAsync({});
-					setRegion({ latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 });
-					return;
-				}
-			} catch (e) {
-				// ignore
-			}
+  useEffect(() => {
+    if (token && branches.length === 0) {
+      fetchBranches(token);
+    }
+  }, [token, branches]);
 
-			// Fallback to first branch
-			if (branches && branches.length > 0) {
-				const b = branches[0];
-				if (b.lat && b.lng) setRegion({ latitude: b.lat, longitude: b.lng, latitudeDelta: 0.02, longitudeDelta: 0.02 });
-			}
-		})();
-	}, [branches]);
+  const initialLat = branches.length > 0 ? Number(branches[0].coordinates_lat) : 7.7667;
+  const initialLng = branches.length > 0 ? Number(branches[0].coordinates_long) : -72.2333;
 
-	if (isLoading || !region) return <ActivityIndicator style={{ flex: 1 }} />;
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      {
+        loading && branches.length === 0 ? (
+          <View style={styles.containerLoading}>
+            <Text style={styles.headerLoading}>Cargando Sucursales</Text>
+            <ActivityIndicator color={theme.colors.primary} size={50} />
+          </View>
+        ) : (
+          <View style={styles.container}>
+            <Text style={styles.headerTitle}>Ubicaciones</Text>
+            <Text style={styles.headerSubtitle}>Encuentra tu sucursal más cercana.</Text>
+    
+            <View style={styles.mapContainer}>
+              <MapView
+                provider={PROVIDER_GOOGLE}
+                style={styles.map}
+                customMapStyle={CLEAN_MAP_STYLE}
+                initialRegion={{
+                  latitude: initialLat,
+                  longitude: initialLng,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
+                }}
+                onPress={() => setSelectedBranch(null)}
+              >
+                {branches.map((branch) => {
+                  const lat = Number(branch.coordinates_lat);
+                  const lng = Number(branch.coordinates_long);
+    
+                  if (isNaN(lat) || isNaN(lng)) return null;
+    
+                  return (
+                    <Marker
+                      key={branch.id}
+                      coordinate={{ latitude: lat, longitude: lng }}
+                      anchor={{ x: 0.5, y: 1 }} 
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setSelectedBranch(branch);
+                      }}
+                      tracksViewChanges={!isLoaded}
+                    ></Marker>
+                  );
+                })}
+              </MapView>
+            </View>
+    
+            {selectedBranch && (
+              <View style={[styles.cardShadow, styles.mapOverlayCard]}>
+                <View style={styles.card}>
+                  <Text style={styles.branchName}>{selectedBranch.name}</Text>
+                  
+                  <View style={styles.buttonShadow}>
+                    <TouchableOpacity 
+                      style={styles.buttonPrimary}
+                      activeOpacity={0.9}
+                      onPress={() => navigation.navigate('MenuList', { branchId: selectedBranch.id })}
+                    >
+                      <Text style={styles.buttonTextPrimary}>VER MENÚ</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            )}
 
-	return (
-		<MapView provider={PROVIDER_GOOGLE} style={{ flex: 1 }} initialRegion={region} region={region}>
-			{branches.map((b) => (
-				// @ts-ignore
-				<Marker key={b.id} coordinate={{ latitude: b.lat || 0, longitude: b.lng || 0 } as LatLng} title={b.name} description={b.address} onCalloutPress={() => {
-					const url = Platform.select({
-						ios: `maps:0,0?q=${b.lat},${b.lng}(${encodeURIComponent(b.name)})`,
-						android: `geo:0,0?q=${b.lat},${b.lng}(${encodeURIComponent(b.name)})`,
-					});
-					if (url) Linking.openURL(url);
-				}} />
-			))}
-		</MapView>
-	);
+          </View>
+        )
+      }
+    </SafeAreaView>
+  );
 }

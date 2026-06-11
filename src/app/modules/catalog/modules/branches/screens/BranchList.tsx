@@ -1,31 +1,80 @@
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import catalogApi from '../../../api/catalog.api';
-import type { Branch } from '../../../../../shared/types';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../../../../shared/store/auth.store';
+import { useCatalogStore } from '../../../store/catalog.store';
+import { Branch } from '../../../models/Branch';
+import { styles } from '../styles/branch.styles';
+import { theme } from '../../../../../shared/styles/theme';
 
 export default function BranchList() {
-	const { data: branches = [], isLoading } = useQuery(['branches'], catalogApi.getBranches);
-	const navigation = useNavigation();
+  const navigation = useNavigation<any>();
+  const token = useAuthStore((s) => s.token);
+  const { branches, loading, fetchBranches, error } = useCatalogStore();
 
-	return (
-		<View style={{ flex: 1, padding: 12 }}>
-			<Text style={{ fontSize: 20, fontWeight: '700', color: '#EC3137', marginBottom: 12 }}>Branches</Text>
-			<TouchableOpacity onPress={() => navigation.navigate('BranchesMap' as never)} style={{ marginBottom: 12 }}>
-				<Text style={{ color: '#EC3137', fontWeight: '600' }}>Open map</Text>
-			</TouchableOpacity>
-			{isLoading && <Text>Loading...</Text>}
-			<FlatList
-				data={branches}
-				keyExtractor={(item: Branch) => item.id}
-				renderItem={({ item }) => (
-					<TouchableOpacity onPress={() => navigation.navigate('MenuList' as never, { branchId: item.id } as never)} style={{ padding: 12, borderWidth: 1, borderRadius: 8, marginBottom: 8 }}>
-						<Text style={{ fontSize: 16, fontWeight: '600' }}>{item.name}</Text>
-						{item.address && <Text style={{ color: '#666' }}>{item.address}</Text>}
-					</TouchableOpacity>
-				)}
-			/>
-		</View>
-	);
+  useEffect(() => {
+    if (token) {
+      fetchBranches(token);
+    }
+  }, [token]);
+
+  const handleRefresh = () => {
+    if (token) fetchBranches(token);
+  };
+
+  const renderBranch = ({ item }: { item: Branch }) => (
+    <View style={styles.cardShadow}>
+      <View style={styles.card}>
+        <Text style={styles.branchName}>{item.name}</Text>
+        <Text style={styles.branchInfo}>Coordenadas: {item.coordinates_lat}, {item.coordinates_long}</Text>
+        
+        <View style={styles.buttonShadow}>
+          <TouchableOpacity 
+            style={styles.buttonPrimary}
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('MenuList')}
+          >
+            <Text style={styles.buttonTextPrimary}>VER MENÚS</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.headerTitle}>Nuestras Sucursales</Text>
+        <Text style={styles.headerSubtitle}>Elige dónde quieres comer hoy.</Text>
+
+        <View style={styles.buttonShadow}>
+          <TouchableOpacity 
+            style={[styles.buttonSecondary, { marginBottom: 24 }]}
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('BranchesMap')}
+          >
+            <Text style={styles.buttonTextSecondary}>UBICAR EN EL MAPA</Text>
+          </TouchableOpacity>
+        </View>
+
+        {loading && !branches.length ? (
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        ) : (
+          <FlatList
+            data={branches}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderBranch}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+            }
+            ListEmptyComponent={
+              <Text style={styles.branchInfo}>No hay sucursales disponibles por el momento.</Text>
+            }
+          />
+        )}
+      </View>
+    </SafeAreaView>
+  );
 }
