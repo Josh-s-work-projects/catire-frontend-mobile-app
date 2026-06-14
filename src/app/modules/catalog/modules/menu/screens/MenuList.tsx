@@ -7,7 +7,6 @@ import { ProductsList } from '../../products/screens/ProductsList';
 import { useAuthStore } from '../../../../../shared/store/auth.store';
 import { theme } from '../../../../../shared/styles/theme';
 
-// 👈 1. Creamos el componente Acordeón
 const MenuAccordion = ({ item }: { item: any }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -57,7 +56,6 @@ export const MenuList = () => {
         ) : (
           <ScrollView showsVerticalScrollIndicator={false}>
             {menus.map((item) => (
-              // 👈 3. Usamos nuestro nuevo componente aquí
               <MenuAccordion key={item.id.toString()} item={item} />
             ))}
 

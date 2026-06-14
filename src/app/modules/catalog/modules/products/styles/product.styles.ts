@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 import { theme } from '../../../../../shared/styles/theme';
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width / 2) - 20;
+const cardWidth = (width / 2) - 40;
 
 export const styles = StyleSheet.create({
   card: {
@@ -21,11 +21,9 @@ export const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 100,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: theme.colors.dark,
+    height: 140,
     marginBottom: 8,
+    objectFit: 'contain',
   },
   name: {
     fontSize: 16,

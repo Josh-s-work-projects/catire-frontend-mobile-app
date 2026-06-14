@@ -12,7 +12,6 @@ export interface Product {
   category_id: number;
   name: string;
   img_src: string;
-  base_price: number;
   category: Category;
   created_at: Date;
   updated_at: Date;
@@ -24,5 +23,4 @@ export interface ProductDTO {
   category_id: number;
   name: string;
   img_src: string;
-  base_price: number;
 }

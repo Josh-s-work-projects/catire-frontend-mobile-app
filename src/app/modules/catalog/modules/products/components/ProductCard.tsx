@@ -2,22 +2,24 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { styles } from '../styles/product.styles';
 import { Product } from '../../../models/Product';
+import { useNavigation } from '@react-navigation/core';
 
 interface Props {
   product: Product;
 }
 
 export const ProductCard = ({ product }: Props) => {
+  const navigation = useNavigation();
+
+  const onPress = () => navigation.navigate('ProductDetails', { product })
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={styles.card}
+    >
       <Image source={{ uri: product.img_src }} style={styles.image} />
       <Text style={styles.name}>{product.name}</Text>
-      <View style={styles.footer}>
-        <Text style={styles.price}>{product.base_price}$</Text>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addText}>+</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 };

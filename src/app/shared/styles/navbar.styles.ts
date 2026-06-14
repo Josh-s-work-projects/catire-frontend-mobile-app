@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
-import { theme } from '../../styles/theme';
+import { theme } from './theme';
 
 const { width } = Dimensions.get('window');
 
@@ -96,4 +96,29 @@ export const styles = StyleSheet.create({
     color: theme.colors.primary,
     textAlign: 'center',
   },
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  cartButton: {
+    position: 'relative',
+    padding: 5,
+  },
+  badge: {
+    position: 'absolute',
+    top: -5,
+    right: -10,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: theme.colors.primary,
+    fontSize: 12,
+    fontWeight: 'bold',
+  }
 });
