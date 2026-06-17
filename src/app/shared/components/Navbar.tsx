@@ -5,6 +5,7 @@ import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import { useAuthStore } from '../store/auth.store';
 import { useCartStore } from '../store/cart.store';
 import { useOrdersStore } from '../../modules/orders/store/orders.store';
+import { DrawerItem } from './DrawerItem';
 import { styles } from '../styles/navbar.styles';
 import { theme } from '../styles/theme';
 
@@ -15,121 +16,93 @@ export const Navbar = () => {
   const { user, logout } = useAuthStore();
   const { getTotalItems } = useCartStore();
   const { orders } = useOrdersStore(); 
-
   const insets = useSafeAreaInsets();
-  const totalItems = getTotalItems();
   
-  const totalOrders = orders?.length || 0; 
+  const totalItems = getTotalItems();
+  const pendingOrdersCount = orders?.filter((o: any) => o.status === 'PENDING').length || 0;
 
   const handleNavigation = (route: string) => {
     setIsMenuOpen(false);
     navigation.navigate(route);
   };
 
-  const handleLogout = () => {
-    setIsMenuOpen(false);
-    if (logout) logout();
-  };
+  const role = user?.role?.name;
+  
+  const roleNavigation = () => {
+    if(role === 'client') handleNavigation('BranchesMap')
+    if(role === 'employee') handleNavigation('EmployeeOrders')
+    if(role === 'admin') handleNavigation('Admin')
+  }
 
   return (
     <>
       <View style={[styles.navContainer, { paddingTop: insets.top }]}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('BranchesMap')}
-        >
-          <Image 
-            source={require('@assets/logo.png')}
-            style={styles.logo} 
-            resizeMode="contain"
-          />
+        <TouchableOpacity onPress={roleNavigation}>
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </TouchableOpacity>
 
         <View style={styles.rightActions}>
-          <TouchableOpacity 
-            style={styles.cartButton} 
-            onPress={() => navigation.navigate('Cart')}
-          >
-            <Text style={styles.menuIconText}>🛒</Text>
-            {totalItems > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{totalItems}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          {role === 'client' && (
+            <TouchableOpacity style={styles.cartButton} onPress={() => navigation.navigate('Cart')}>
+              <Text style={styles.menuIconText}>🛒</Text>
+              {totalItems > 0 && (
+                <View style={styles.badge}><Text style={styles.badgeText}>{totalItems}</Text></View>
+              )}
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity 
-            style={styles.menuButton} 
-            onPress={() => setIsMenuOpen(true)}
-          >
+          <TouchableOpacity style={styles.menuButton} onPress={() => setIsMenuOpen(true)}>
             <Text style={styles.menuIconText}>☰</Text>
-            {totalOrders > 0 && (
+            {pendingOrdersCount > 0 && role === 'client' && (
               <View style={[styles.badge, { backgroundColor: theme.colors.secondary }]}>
-                <Text style={styles.badgeText}>{totalOrders}</Text>
+                <Text style={styles.badgeText}>{pendingOrdersCount}</Text>
               </View>
             )}
           </TouchableOpacity>
         </View>
       </View>
 
-      <Modal
-        visible={isMenuOpen}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsMenuOpen(false)}
-      >
+      <Modal visible={isMenuOpen} transparent animationType="fade" onRequestClose={() => setIsMenuOpen(false)}>
         <View style={styles.modalOverlay}>
+          <TouchableOpacity style={styles.closeArea} activeOpacity={1} onPress={() => setIsMenuOpen(false)} />
           
-          <TouchableOpacity 
-            style={styles.closeArea} 
-            activeOpacity={1} 
-            onPress={() => setIsMenuOpen(false)} 
-          />
-
           <View style={styles.drawerContainer}>
-            
             <SafeAreaView style={styles.drawerHeader}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('BranchesMap')}
-              >
-                <Image 
-                  source={require('@assets/logo.png')} 
-                  style={styles.drawerLogo} 
-                  resizeMode="contain"
-                />
+
+              <TouchableOpacity onPress={roleNavigation}>
+                <Image source={require('@assets/logo.png')} style={styles.drawerLogo} resizeMode="contain" />
               </TouchableOpacity>
-              <Text style={styles.drawerUserText}>Hola, {user?.full_name || 'Cliente'}</Text>
+              
+              <Text style={styles.drawerUserText}>Hola, {user?.full_name}</Text>
             </SafeAreaView>
 
             <View style={styles.drawerBody}>
-              <TouchableOpacity 
-                style={styles.drawerItem} 
-                onPress={() => handleNavigation('Profile')}
-              >
-                <Text style={styles.drawerItemText}>Mi perfil</Text>
-              </TouchableOpacity>
+              <DrawerItem label="Mi perfil" onPress={() => handleNavigation('Profile')} />
 
-              <TouchableOpacity 
-                style={[styles.drawerItem, { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }]} 
-                onPress={() => handleNavigation('Orders')}
-              >
-                <Text style={styles.drawerItemText}>Mis ordenes</Text>
-                {totalOrders > 0 && (
-                  <View style={{ backgroundColor: theme.colors.secondary, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
-                    <Text style={{ color: theme.colors.primary, fontWeight: 'bold', fontSize: 12 }}>{totalOrders}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
+              {role === 'client' && (
+                <DrawerItem
+                  label="Mis Órdenes"
+                  onPress={() => handleNavigation('Orders')}
+                  badgeCount={pendingOrdersCount > 0 ? orders?.length : 0}
+                />
+              )}
+
+              {role === 'employee' && (
+                <>
+                  <DrawerItem label="Gestión de Menús" onPress={() => handleNavigation('MenuAdmin')} />
+                  <DrawerItem label="Gestión de Productos" onPress={() => handleNavigation('ProductsAdmin')} />
+                </>
+              )}
+
+              {/* Permisos de ADMIN */}
+              {role === 'admin' && (
+                <DrawerItem label="Panel de Control" onPress={() => handleNavigation('Admin')} />
+              )}
 
               <View style={{ flex: 1 }} />
 
-              <TouchableOpacity 
-                style={[styles.drawerItem, styles.logoutItem]} 
-                onPress={handleLogout}
-              >
-                <Text style={styles.logoutText}>Cerrar sesión</Text>
-              </TouchableOpacity>
+              <DrawerItem label="Cerrar sesión" onPress={() => { setIsMenuOpen(false); logout?.(); }} isLogout />
             </View>
-
           </View>
         </View>
       </Modal>

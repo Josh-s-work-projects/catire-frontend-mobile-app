@@ -3,9 +3,9 @@ import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../../../shared/store/auth.store';
 import { useOrdersStore } from '../../../store/orders.store';
-import { OrderStatusType } from '../../../../../shared/api/enums';
 import { styles } from '../styles/orders.styles';
 import { useNavigation } from '@react-navigation/core';
+import { getStatusDisplay } from '../utils/orders.utils';
 
 export const OrdersScreen = () => {
   const { token } = useAuthStore();
@@ -17,24 +17,6 @@ export const OrdersScreen = () => {
       fetchOrders(token);
     }
   }, [token]);
-
-  // Función para determinar colores y textos según el status
-  const getStatusDisplay = (status: OrderStatusType) => {
-    switch (status) {
-      case 'PENDING':
-        return { text: 'Pendiente', color: '#f39c12', bg: '#fdf1de' };
-      case 'PROCESSING':
-        return { text: 'En Preparación', color: '#9b59b6', bg: '#f5eef8' };
-      case 'DELIVERED':
-        return { text: 'Entregada', color: '#2ecc71', bg: '#eafaf1' };
-      case 'CANCELLED':
-        return { text: 'Cancelada', color: '#e74c3c', bg: '#fdedec' };
-      case 'PAID':
-        return { text: 'Pagada', color: '#197a41', bg: '#fdedec' };
-      default:
-        return { text: 'Desconocido', color: '#95a5a6', bg: '#f4f6f7' };
-    }
-  };
 
   const renderItem = ({ item }: any) => {
     const statusInfo = getStatusDisplay(item.status);

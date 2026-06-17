@@ -183,9 +183,8 @@ export const styles = StyleSheet.create({
   },
 
   footer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems: 'center',
     backgroundColor: theme.colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 15,
@@ -201,5 +200,16 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '900',
     color: theme.colors.white,
-  }
+  },
+  actionBtn: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
 });

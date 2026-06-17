@@ -7,3 +7,4 @@ export type NameTag = 'SIZE' | 'TOPPINGS' | 'TYPE_MEAT' | 'TYPE_SAUSAGE' | 'SAUC
 export type Role = 'client' | 'employee' | 'admin';
 
 export type Permission = 'create' | 'read' | 'update' | 'delete';
+

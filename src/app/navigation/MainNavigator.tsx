@@ -8,16 +8,16 @@ import BranchesMap from '../modules/catalog/modules/branches/screens/BranchesMap
 import ProductDetails from '../modules/catalog/modules/products/screens/ProductDetails';
 import PurchasesList from '../modules/finance/modules/purchases/screens/PurchasesList';
 import { useAuthStore } from '../shared/store/auth.store';
-import AdminHome from '../shared/screens/AdminHome';
-import Taxes from '../shared/screens/Taxes';
-import ProductsAdmin from '../shared/screens/ProductsAdmin';
-import UsersAdmin from '../shared/screens/UsersAdmin';
-import RolesAdmin from '../shared/screens/RolesAdmin';
 import { MenuList } from '../modules/catalog/modules/menu/screens/MenuList';
 import { Navbar } from '../shared/components/Navbar';
 import { CartScreen } from '../modules/catalog/modules/products/screens/CartScreen';
 import { OrderDetails } from '../modules/orders/modules/orders/screens/OrderDetails';
 import { ProfileScreen } from '../modules/auth/modules/users/screens/ProfileScreen';
+import { EmployeeOrdersScreen } from '../modules/orders/modules/orders/screens/EmployeeOrdersScreen';
+import { ProductsAdmin } from '../modules/catalog/modules/products/screens/ProductsAdmin';
+import { MenuAdmin } from '../modules/catalog/modules/menu/screens/MenuAdmin';
+import { MenuForm } from '../modules/catalog/modules/menu/forms/MenuForm';
+import { ProductForm } from '../modules/catalog/modules/products/forms/ProductForm';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,17 +34,42 @@ export default function MainNavigator() {
           </>
         ) : (
           <Stack.Group screenOptions={{ header: () => <Navbar /> }}>
-            <Stack.Screen name="BranchesMap" component={BranchesMap} />
-            <Stack.Screen name="Branches" component={BranchList} />
-            <Stack.Screen name="MenuList" component={MenuList} />
-            <Stack.Screen name="ProductDetails" component={ProductDetails} />
-            <Stack.Screen name="Cart" component={CartScreen} />
+            {
+              user?.role.name === 'client' && (
+                <>
+                  <Stack.Screen name="BranchesMap" component={BranchesMap} />
+                  <Stack.Screen name="Branches" component={BranchList} />
+                  <Stack.Screen name="MenuList" component={MenuList} />
+                  <Stack.Screen name="ProductDetails" component={ProductDetails} />
+                  <Stack.Screen name="Cart" component={CartScreen} />
+                </>
+              )
+            }
+
+            {
+              user?.role.name === 'employee' && (
+                <>
+                  <Stack.Screen name="EmployeeOrders" component={EmployeeOrdersScreen} />
+                  <Stack.Screen name="MenuAdmin" component={MenuAdmin} />
+                  <Stack.Screen name="ProductsAdmin" component={ProductsAdmin} />
+                  <Stack.Screen name="MenuForm" component={MenuForm} />
+                  <Stack.Screen name="ProductForm" component={ProductForm} />
+                </>
+              )
+            }
+
+            {
+              user?.role.name === 'admin' && (
+                <>
+                  <Stack.Screen name="MenuAdmin" component={MenuAdmin} />
+                  <Stack.Screen name="ProductsAdmin" component={ProductsAdmin} />
+                  <Stack.Screen name="MenuForm" component={MenuForm} />
+                  <Stack.Screen name="ProductForm" component={ProductForm} />
+                </>
+              )
+            }
+            
             <Stack.Screen name="Profile" component={ProfileScreen} />
-            {user?.role?.name === 'admin' && <Stack.Screen name="Admin" component={AdminHome} />}
-            {user?.role?.name === 'admin' && <Stack.Screen name="Taxes" component={Taxes} />}
-            {user?.role?.name === 'admin' && <Stack.Screen name="ProductsAdmin" component={ProductsAdmin} />}
-            {user?.role?.name === 'admin' && <Stack.Screen name="UsersAdmin" component={UsersAdmin} />}
-            {user?.role?.name === 'admin' && <Stack.Screen name="RolesAdmin" component={RolesAdmin} />}
             <Stack.Screen name="Orders" component={OrdersScreen} />
             <Stack.Screen name="OrderDetails" component={OrderDetails} />
             <Stack.Screen name="Purchases" component={PurchasesList} />

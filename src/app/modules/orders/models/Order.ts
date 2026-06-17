@@ -1,4 +1,5 @@
 import { NameTag, OrderStatusType } from "../../../shared/api/enums";
+import { User } from "../../auth/models/User";
 
 export interface OrderAddress {
   street: number;
@@ -15,6 +16,7 @@ export interface OrderFeatures {
 export interface Order {
   id: string;
   user_id: number;
+  user: User;
   is_delivery: boolean;
   notes?: string | null;
   address?: OrderAddress | null;

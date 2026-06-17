@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Order, OrderDTO } from '../models/Order';
 import ordersApi from '../api/orders.api';
+import { OrderStatusType } from '../../../shared/api/enums';
 
 type OrdersState = {
   orders: Order[];
@@ -16,6 +17,7 @@ type OrdersState = {
   addOrder: (token: string, payload: OrderDTO) => Promise<void>;
   editOrder: (token: string, id: string | number, payload: Partial<Order>) => Promise<void>;
   removeOrder: (token: string, id: string | number) => Promise<void>;
+  updateOrderStatus: (token: string, id: string | number, status: OrderStatusType) => Promise<void>;
 };
 
 export const useOrdersStore = create<OrdersState>()(
@@ -90,6 +92,30 @@ export const useOrdersStore = create<OrdersState>()(
           
           set((state) => ({
             orders: state.orders.filter((o) => o.id !== id),
+          }));
+        } finally {
+          set({ actionLoading: false });
+        }
+      },
+
+      updateOrderStatus: async (token, id, status) => {
+        set({ actionLoading: true, error: null });
+        try {
+          // Asumimos que puedes hacer un PATCH al estatus usando tu updateOrder
+          // Si tienes un endpoint específico, cámbialo a ordersApi.updateOrderStatus(token, id, status)
+          const res = await ordersApi.updateOrder(token, id, { status });
+          
+          if (res.error) {
+            set({ error: res.message });
+            return;
+          }
+
+          // Actualización optimista o basada en la respuesta
+          set((state) => ({
+            orders: state.orders.map((o) => 
+              // Actualizamos el status localmente para reflejar el cambio en UI de inmediato
+              o.id === id ? { ...o, status } : o
+            ),
           }));
         } finally {
           set({ actionLoading: false });

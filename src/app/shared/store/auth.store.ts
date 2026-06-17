@@ -3,6 +3,9 @@ import * as SecureStore from 'expo-secure-store';
 import authApi from '../../modules/auth/api/auth.api';
 import { LoginDTO } from '../../modules/auth/models/Auth';
 import { User, UserDTO } from '../../modules/auth/models/User';
+import { useCatalogStore } from '../../modules/catalog/store/catalog.store';
+import { useFinanceStore } from '../../modules/finance/store/finance.store';
+import { useOrdersStore } from '../../modules/orders/store/orders.store';
 
 type AuthState = {
   user?: User | null;
@@ -84,6 +87,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     await SecureStore.deleteItemAsync('token');
+    useCatalogStore.persist.clearStorage();
+    useOrdersStore.persist.clearStorage();
+    useFinanceStore.persist.clearStorage();
     set({ token: null, user: null, error: null });
   },
 }));

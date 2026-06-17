@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Branch } from '../models/Branch';
-import { Menu } from '../models/Menu';
-import { Product } from '../models/Product';
+import { Branch, BranchDTO } from '../models/Branch';
+import { Menu, MenuDTO } from '../models/Menu';
+import { Product, ProductDTO } from '../models/Product';
 import catalogApi from '../api/catalog.api';
 
 type CatalogState = {
@@ -18,19 +18,19 @@ type CatalogState = {
 
   // --- BRANCHES ACTIONS ---
   fetchBranches: (token: string) => Promise<void>;
-  addBranch: (token: string, payload: Omit<Branch, 'id'>) => Promise<void>;
+  addBranch: (token: string, payload: BranchDTO) => Promise<void>;
   editBranch: (token: string, id: string | number, payload: Partial<Branch>) => Promise<void>;
   removeBranch: (token: string, id: string | number) => Promise<void>;
 
   // --- MENUS ACTIONS ---
   fetchMenus: (token: string, branchId?: string) => Promise<void>;
-  addMenu: (token: string, payload: Omit<Menu, 'id'>) => Promise<void>;
+  addMenu: (token: string, payload: MenuDTO) => Promise<void>;
   editMenu: (token: string, id: string | number, payload: Partial<Menu>) => Promise<void>;
   removeMenu: (token: string, id: string | number) => Promise<void>;
 
   // --- PRODUCTS ACTIONS ---
   fetchProducts: (token: string, menuId?: string) => Promise<void>;
-  addProduct: (token: string, payload: Omit<Product, 'id'>) => Promise<void>;
+  addProduct: (token: string, payload: ProductDTO) => Promise<void>;
   editProduct: (token: string, id: string | number, payload: Partial<Product>) => Promise<void>;
   removeProduct: (token: string, id: string | number) => Promise<void>;
 };
@@ -60,6 +60,8 @@ export const useCatalogStore = create<CatalogState>()(
           set({ branches: res.data || [] });
         } catch {
           set({ loading: false });
+        } finally {
+          set({ loading: false }); 
         }
       },
 
