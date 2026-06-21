@@ -18,6 +18,12 @@ import { ProductsAdmin } from '../modules/catalog/modules/products/screens/Produ
 import { MenuAdmin } from '../modules/catalog/modules/menu/screens/MenuAdmin';
 import { MenuForm } from '../modules/catalog/modules/menu/forms/MenuForm';
 import { ProductForm } from '../modules/catalog/modules/products/forms/ProductForm';
+import { OrdersAdmin } from '../modules/orders/modules/orders/screens/OrderAdmin';
+import { BranchAdmin } from '../modules/catalog/modules/branches/screens/BranchAdmin';
+import { UsersAdmin } from '../modules/auth/modules/users/screens/UserAdmin';
+import { AdminScreen } from '../shared/screens/AdminScreen';
+import { BranchForm } from '../modules/catalog/modules/branches/forms/BranchForm';
+import { UserForm } from '../modules/auth/modules/users/forms/UserForm';
 
 const Stack = createNativeStackNavigator();
 
@@ -61,10 +67,18 @@ export default function MainNavigator() {
             {
               user?.role.name === 'admin' && (
                 <>
+                  <Stack.Screen name="AdminScreen" component={AdminScreen} />
+
                   <Stack.Screen name="MenuAdmin" component={MenuAdmin} />
+                  <Stack.Screen name="BranchAdmin" component={BranchAdmin} />
                   <Stack.Screen name="ProductsAdmin" component={ProductsAdmin} />
+                  <Stack.Screen name="OrdersAdmin" component={OrdersAdmin} />
+                  <Stack.Screen name="UsersAdmin" component={UsersAdmin} />
+
                   <Stack.Screen name="MenuForm" component={MenuForm} />
+                  <Stack.Screen name="BranchForm" component={BranchForm} />
                   <Stack.Screen name="ProductForm" component={ProductForm} />
+                  <Stack.Screen name="UserForm" component={UserForm} />
                 </>
               )
             }

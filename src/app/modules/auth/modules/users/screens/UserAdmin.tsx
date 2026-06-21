@@ -6,7 +6,7 @@ import { useUserStore } from '../../../store/user.store';
 import { User } from '../../../models/User';
 import { styles } from '../../../../../shared/styles/admin.styles';
 
-export const AdminUsersScreen = () => {
+export const UsersAdmin = () => {
   const navigation = useNavigation<any>();
   const { users, loading, fetchUsers, deleteUser } = useUserStore();
 

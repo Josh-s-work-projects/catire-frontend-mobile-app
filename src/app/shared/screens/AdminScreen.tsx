@@ -8,11 +8,11 @@ export const AdminScreen = () => {
   const navigation = useNavigation<any>();
 
   const modules = [
-    { title: 'Usuarios', icon: '👥', route: 'UserAdmin' },
+    { title: 'Usuarios', icon: '👥', route: 'UsersAdmin' },
     { title: 'Sucursales', icon: '🏪', route: 'BranchAdmin' },
     { title: 'Menús', icon: '📋', route: 'MenuAdmin' },
-    { title: 'Productos', icon: '🍔', route: 'ProductAdmin' },
-    { title: 'Pedidos', icon: '🛵', route: 'OrderAdmin' },
+    { title: 'Productos', icon: '🍔', route: 'ProductsAdmin' },
+    { title: 'Pedidos', icon: '🛵', route: 'OrdersAdmin' },
   ];
 
   return (

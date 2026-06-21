@@ -4,9 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCatalogStore } from '../../../store/catalog.store';
 import { useAuthStore } from '../../../../../shared/store/auth.store';
-import { styles } from '../../../../../shared/styles/admin.styles';
 import { Product } from '../../../models/Product';
 import { ConfirmDeleteModal } from '../../../../../shared/components/ConfirmDeleteModal';
+import { styles } from '../../../../../shared/styles/admin.styles';
 
 export const ProductsAdmin = () => {
   const navigation = useNavigation<any>();

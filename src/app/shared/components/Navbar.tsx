@@ -31,7 +31,7 @@ export const Navbar = () => {
   const roleNavigation = () => {
     if(role === 'client') handleNavigation('BranchesMap')
     if(role === 'employee') handleNavigation('EmployeeOrders')
-    if(role === 'admin') handleNavigation('Admin')
+    if(role === 'admin') handleNavigation('AdminScreen')
   }
 
   return (
@@ -96,7 +96,7 @@ export const Navbar = () => {
 
               {/* Permisos de ADMIN */}
               {role === 'admin' && (
-                <DrawerItem label="Panel de Control" onPress={() => handleNavigation('MenuAdmin')} />
+                <DrawerItem label="Panel de Control" onPress={() => handleNavigation('AdminScreen')} />
               )}
 
               <View style={{ flex: 1 }} />

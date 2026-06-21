@@ -8,7 +8,7 @@ import { OrderStatusType } from '../../../../../shared/api/enums';
 import { styles } from '../../../../../shared/styles/admin.styles';
 import { useOrdersStore } from '../../../store/orders.store';
 
-export const AdminOrdersScreen = () => {
+export const OrdersAdmin = () => {
   const navigation = useNavigation();
   const { token } = useAuthStore();
   const { orders, loading, actionLoading, fetchOrders, updateOrderStatus } = useOrdersStore();
