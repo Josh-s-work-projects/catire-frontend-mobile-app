@@ -96,7 +96,7 @@ export const Navbar = () => {
 
               {/* Permisos de ADMIN */}
               {role === 'admin' && (
-                <DrawerItem label="Panel de Control" onPress={() => handleNavigation('Admin')} />
+                <DrawerItem label="Panel de Control" onPress={() => handleNavigation('MenuAdmin')} />
               )}
 
               <View style={{ flex: 1 }} />

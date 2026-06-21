@@ -18,8 +18,10 @@ type AuthState = {
   setToken: (token?: string | null) => Promise<void>;
   setUser: (user?: User | null) => void;
   login: (payload: LoginDTO) => Promise<void>;
+  loginWithBiometrics: () => Promise<void>;
   register: (payload: UserDTO) => Promise<boolean>;
   logout: () => Promise<void>;
+  toggleBiometric: (enabled: boolean) => Promise<void>; 
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -54,7 +56,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       const token = res.data?.access_token || '';
-
       const validateRes = await authApi.validate(token);
 
       if (validateRes.error) {
@@ -63,6 +64,42 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       await SecureStore.setItemAsync('token', token);
+      await SecureStore.setItemAsync('user_email', payload.email);
+      await SecureStore.setItemAsync('user_password', payload.password);
+      await SecureStore.setItemAsync('biometric_enabled', 'true');
+
+      set({ token, user: validateRes.data });
+
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  loginWithBiometrics: async () => {
+    set({ loading: true, error: null });
+    try {
+      const email = await SecureStore.getItemAsync('user_email') || '';
+      const password = await SecureStore.getItemAsync('user_password') || '';
+      
+      const res = await authApi.login(email, password);
+
+      if (res.error) {
+        set({ error: res.message });
+        return;
+      }
+
+      const token = res.data?.access_token || '';
+      const validateRes = await authApi.validate(token);
+
+      if (validateRes.error) {
+        set({ error: validateRes.message });
+        return;
+      }
+
+      await SecureStore.setItemAsync('token', token);
+      await SecureStore.setItemAsync('user_email', email);
+      await SecureStore.setItemAsync('user_password', password);
+
       set({ token, user: validateRes.data });
     } finally {
       set({ loading: false });
@@ -78,8 +115,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ error: res.message });
         return false;
       }
-      
-      return true; // Retorna true para manejar redirecciones en la vista
+      return true;
     } finally {
       set({ actionLoading: false });
     }
@@ -91,5 +127,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     useOrdersStore.persist.clearStorage();
     useFinanceStore.persist.clearStorage();
     set({ token: null, user: null, error: null });
+  },
+
+  toggleBiometric: async (enabled) => {
+    if (enabled) {
+      await SecureStore.setItemAsync('biometric_enabled', 'true');
+    } else {
+      await SecureStore.deleteItemAsync('biometric_enabled');
+    }
   },
 }));

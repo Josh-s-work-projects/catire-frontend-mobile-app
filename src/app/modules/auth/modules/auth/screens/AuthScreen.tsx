@@ -1,24 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as SecureStore from 'expo-secure-store';
+import { Image } from 'expo-image';
+
 import LoginForm from '../forms/LoginForm';
 import RegisterForm from '../forms/RegisterForm';
 import { styles } from '../styles/auth.styles';
-import { Image } from 'expo-image'
 import { useCatalogStore } from '../../../../catalog/store/catalog.store';
 import { useOrdersStore } from '../../../../orders/store/orders.store';
 import { useFinanceStore } from '../../../../finance/store/finance.store';
+import { useAuthStore } from '../../../../../shared/store/auth.store';
+import { authenticate, checkBiometricsAvailability } from '../../../api/auth.local';
 
-const Logo = require('@assets/logo.png')
+const Logo = require('@assets/logo.png');
+const BiometricLogo = require('@assets/huella.png');
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
+  const [canUseBiometrics, setCanUseBiometrics] = useState(false);
+
+  const { loginWithBiometrics, loading } = useAuthStore();
 
   useEffect(() => {
     useCatalogStore.persist.clearStorage();
     useOrdersStore.persist.clearStorage();
     useFinanceStore.persist.clearStorage();
-  }, [])
+    
+    async function checkBiometrics () {
+      const isBiometricAvailable = await checkBiometricsAvailability();
+      const isBiometricEnabled = await SecureStore.getItemAsync('biometric_enabled') || 'false';
+      
+      setCanUseBiometrics(isBiometricAvailable && isBiometricEnabled === 'true');
+    };
+
+    checkBiometrics();
+  }, []);
+
+  const handleBiometricPress = async () => {
+    try {
+      const isFingerprintValid = await authenticate();
+      if (isFingerprintValid) {
+        await loginWithBiometrics();
+      }
+    } catch (error) {
+      console.error("Error en flujo biométrico:", error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -26,13 +54,7 @@ export default function AuthScreen() {
         
         <View style={styles.headerContainer}>
           <View style={styles.logoPlaceholder}>
-            <Image
-              source={Logo}
-              style={{
-                width: 150,
-                height: 150,
-              }}
-            />
+            <Image source={Logo} style={{ width: 150, height: 150 }} />
           </View>
           <Text style={styles.subtitle}>DESDE 2003</Text>
         </View>
@@ -42,13 +64,28 @@ export default function AuthScreen() {
             <Text style={styles.title}>
               {isLogin ? '¡BIENVENIDO DE VUELTA!' : '¡ÚNETE A LA FAMILIA!'}
             </Text>
-            <Text style={styles.description}>
-              {isLogin 
-                ? 'Ingresa de forma segura para explorar las sucursales y pedir el menú.' 
-                : 'Crea tu cuenta para disfrutar del mejor sabor criollo premium.'}
-            </Text>
 
             {isLogin ? <LoginForm /> : <RegisterForm />}
+
+            {isLogin && canUseBiometrics && (
+              <View style={{ marginTop: 25, alignItems: 'center' }}>
+                <Text style={{ marginBottom: 10, color: '#888', fontSize: 12 }}>
+                  O usa tu huella para acceder rápido:
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    padding: 10,
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: 50,
+                    opacity: loading ? 0.7 : 1
+                  }}
+                  onPress={handleBiometricPress}
+                  disabled={loading}
+                >
+                  <Image source={BiometricLogo} style={{ width: 50, height: 50 }} />
+                </TouchableOpacity>
+              </View>
+            )}
 
             <View style={styles.toggleContainer}>
               <Text style={styles.toggleText}>
@@ -56,13 +93,13 @@ export default function AuthScreen() {
               </Text>
               <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
                 <Text style={styles.toggleLink}>
-                  {isLogin ? 'REGÍSTRATE AQUÍ - ES GRATIS' : 'INICIA SESIÓN AQUÍ'}
+                  {isLogin ? 'REGÍSTRATE AQUÍ' : 'INICIA SESIÓN'}
                 </Text>
               </TouchableOpacity>
             </View>
+            
           </View>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
