@@ -1,28 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCatalogStore } from '../../../store/catalog.store';
 import { useAuthStore } from '../../../../../shared/store/auth.store';
 import { Product } from '../../../models/Product';
-import { ConfirmDeleteModal } from '../../../../../shared/components/ConfirmDeleteModal';
 import { styles } from '../../../../../shared/styles/admin.styles';
 
 export const ProductsAdmin = () => {
   const navigation = useNavigation<any>();
   const { token } = useAuthStore();
   const { products, loading, fetchProducts, removeProduct } = useCatalogStore();
-  
-  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     if (token) fetchProducts(token);
   }, [token]);
 
-  const handleDelete = async () => {
-    if (itemToDelete !== null && token) {
-      await removeProduct(token, itemToDelete);
-      setItemToDelete(null);
+  const handleDelete = async (id: number) => {
+    if (token) {
+      await removeProduct(token, id);
     }
   };
 
@@ -38,7 +34,7 @@ export const ProductsAdmin = () => {
         <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate('ProductForm', { product: item })}>
           <Text>✏️</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteBtn} onPress={() => setItemToDelete(item.id)}>
+        <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id)}>
           <Text>🗑️</Text>
         </TouchableOpacity>
       </View>
@@ -46,11 +42,14 @@ export const ProductsAdmin = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.headerTitle}>Gestión de Productos</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
+        <Text style={styles.title}>Productos</Text>
+      </View>
       
       {loading && products.length === 0 ? (
-        <View style={styles.loaderContainer}><ActivityIndicator size="large" color="#FFB800" /></View>
+        <ActivityIndicator size="large" color="#FFB800" />
       ) : (
         <FlatList
           data={products as Product[]}
@@ -64,12 +63,6 @@ export const ProductsAdmin = () => {
       <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('ProductForm')}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-
-      <ConfirmDeleteModal
-        visible={itemToDelete !== null}
-        onCancel={() => setItemToDelete(null)}
-        onConfirm={handleDelete}
-      />
     </SafeAreaView>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,23 +6,19 @@ import { useCatalogStore } from '../../../store/catalog.store';
 import { useAuthStore } from '../../../../../shared/store/auth.store';
 import { styles } from '../../../../../shared/styles/admin.styles';
 import { Menu } from '../../../models/Menu';
-import { ConfirmDeleteModal } from '../../../../../shared/components/ConfirmDeleteModal';
 
 export const MenuAdmin = () => {
   const navigation = useNavigation<any>();
   const { token } = useAuthStore();
   const { menus, loading, fetchMenus, removeMenu } = useCatalogStore();
-  
-  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     if (token) fetchMenus(token);
   }, [token]);
 
-  const handleDelete = async () => {
-    if (itemToDelete !== null && token) {
-      await removeMenu(token, itemToDelete);
-      setItemToDelete(null);
+  const handleDelete = async (id: number) => {
+    if (token) {
+      await removeMenu(token, id);
     }
   };
 
@@ -37,7 +33,7 @@ export const MenuAdmin = () => {
         <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate('MenuForm', { menu: item })}>
           <Text>✏️</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteBtn} onPress={() => setItemToDelete(item.id)}>
+        <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id)}>
           <Text>🗑️</Text>
         </TouchableOpacity>
       </View>
@@ -45,11 +41,14 @@ export const MenuAdmin = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.headerTitle}>Gestión de Menús</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
+        <Text style={styles.title}>Menús</Text>
+      </View>
       
       {loading && menus.length === 0 ? (
-        <View style={styles.loaderContainer}><ActivityIndicator size="large" color="#FFB800" /></View>
+        <ActivityIndicator size="large" color="#FFB800" />
       ) : (
         <FlatList
           data={menus as Menu[]}
@@ -63,12 +62,6 @@ export const MenuAdmin = () => {
       <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('MenuForm')}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-
-      <ConfirmDeleteModal
-        visible={itemToDelete !== null}
-        onCancel={() => setItemToDelete(null)}
-        onConfirm={handleDelete}
-      />
     </SafeAreaView>
   );
 };

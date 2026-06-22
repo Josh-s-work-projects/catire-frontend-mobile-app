@@ -27,14 +27,12 @@ export const ProductForm = ({ route }: any) => {
   const [menuId, setMenuId] = useState<number | string | null>(null);
   const [categoryId, setCategoryId] = useState<number | null>(null);
 
-  // Consulta asíncrona de los menús registrados para enlazar la relación estructural
   useEffect(() => {
     if (token && menus.length === 0) {
       fetchMenus(token);
     }
   }, [token, menus.length]);
 
-  // Carga inicial y asignación de defaults basándose en las propiedades tipadas del DTO
   useEffect(() => {
     if (isEditing && productToEdit) {
       setName(productToEdit.name);
@@ -68,9 +66,7 @@ export const ProductForm = ({ route }: any) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>← Volver</Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
         <Text style={styles.title}>{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</Text>
       </View>
 

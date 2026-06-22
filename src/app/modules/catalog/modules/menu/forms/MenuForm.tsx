@@ -53,9 +53,7 @@ export const MenuForm = ({ route }: any) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>← Volver</Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
         <Text style={styles.title}>{isEditing ? 'Editar Menú' : 'Nuevo Menú'}</Text>
       </View>
 
