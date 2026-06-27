@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../../../shared/store/auth.store';
@@ -6,22 +6,29 @@ import { useOrdersStore } from '../../../store/orders.store';
 import { styles } from '../styles/orders.styles';
 import { useNavigation } from '@react-navigation/core';
 import { getStatusDisplay } from '../utils/orders.utils';
+import { FilterToggle } from '../components/FilterToggle';
 
 export const OrdersScreen = () => {
   const { token } = useAuthStore();
   const { orders, fetchOrders, loading } = useOrdersStore();
+  const [includePaid, setIncludePaid] = useState(false);
   const navigation = useNavigation<any>();
 
   useEffect(() => {
     if (token && fetchOrders) {
-      fetchOrders(token);
+      fetchOrders(token, includePaid);
     }
-  }, [token]);
+  }, [token, includePaid]);
 
   const renderItem = ({ item }: any) => {
     const statusInfo = getStatusDisplay(item.status);
     const orderDate = new Date(item.created_at).toLocaleDateString('es-ES', {
-      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
     });
 
     return (
@@ -42,7 +49,7 @@ export const OrdersScreen = () => {
           </Text>
           {item.notes && <Text style={styles.notesText}>📝 Notas: {item.notes}</Text>}
         </View>
-        
+
         <TouchableOpacity
           style={styles.detailsBtn}
           activeOpacity={0.7}
@@ -61,16 +68,19 @@ export const OrdersScreen = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#000" style={{ marginTop: 50 }} />
       ) : (
-        <FlatList
-          data={orders || []}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>Aún no has realizado ninguna orden.</Text>
-          }
-        />
+        <>
+          <FilterToggle value={includePaid} onChange={setIncludePaid} />
+          <FlatList
+            data={orders || []}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>Aún no has realizado ninguna orden.</Text>
+            }
+          />
+        </>
       )}
     </SafeAreaView>
   );

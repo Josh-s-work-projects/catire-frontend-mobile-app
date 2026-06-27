@@ -8,6 +8,7 @@ import BranchesMap from '../modules/catalog/modules/branches/screens/BranchesMap
 import ProductDetails from '../modules/catalog/modules/products/screens/ProductDetails';
 import PurchasesList from '../modules/finance/modules/purchases/screens/PurchasesList';
 import { useAuthStore } from '../shared/store/auth.store';
+import { useSocketManager } from '../shared/store/socket.store';
 import { MenuList } from '../modules/catalog/modules/menu/screens/MenuList';
 import { Navbar } from '../shared/components/Navbar';
 import { CartScreen } from '../modules/catalog/modules/products/screens/CartScreen';
@@ -25,14 +26,18 @@ import { AdminScreen } from '../shared/screens/AdminScreen';
 import { BranchForm } from '../modules/catalog/modules/branches/forms/BranchForm';
 import { UserForm } from '../modules/auth/modules/users/forms/UserForm';
 
+export const navigationRef = React.createRef<any>();
+
 const Stack = createNativeStackNavigator();
 
 export default function MainNavigator() {
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
 
+  useSocketManager();
+
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator>
         {!token ? (
           <>

@@ -24,7 +24,6 @@ export default function AuthScreen() {
 
   useEffect(() => {
     useCatalogStore.persist.clearStorage();
-    useOrdersStore.persist.clearStorage();
     useFinanceStore.persist.clearStorage();
     
     async function checkBiometrics () {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput, Switch, Alert, Modal, ActivityIndicator
 } from 'react-native';
@@ -14,7 +14,7 @@ export const CartScreen = () => {
   const navigation = useNavigation<any>();
 
   const { items, updateQuantity, removeItem, getTotalPrice, clearCart } = useCartStore();
-  const { addOrder, actionLoading, clearOrdersError } = useOrdersStore();
+  const { addOrder, actionLoading, clearOrdersError, error } = useOrdersStore();
   const { token } = useAuthStore();
 
   const [isDelivery, setIsDelivery] = useState(false);
@@ -58,7 +58,6 @@ export const CartScreen = () => {
     const currentError = useOrdersStore.getState().error;
 
     if (currentError) {
-      Alert.alert('Error al crear orden', currentError);
       clearOrdersError();
     } else {
       clearCart();
@@ -71,13 +70,18 @@ export const CartScreen = () => {
     navigation.navigate('Orders');
   };
 
+  useEffect(() => {
+    console.log(error);
+    if(error) Alert.alert(error)
+  }, [error]);
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Tu Carrito</Text>
 
       <FlatList
         data={items}
-        keyExtractor={(item) => item.cart_id}
+        keyExtractor={(item) => `${item.cart_id} - ${item.name}`}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <CartItemAccordion 

@@ -1,6 +1,4 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Order, OrderDTO } from '../models/Order';
 import ordersApi from '../api/orders.api';
 import { OrderStatusType } from '../../../shared/api/enums';
@@ -12,122 +10,116 @@ type OrdersState = {
   error: string | null;
   
   clearOrdersError: () => void;
-
-  fetchOrders: (token: string) => Promise<void>;
+  fetchOrders: (token: string, includePaid?: boolean) => Promise<void>;
   addOrder: (token: string, payload: OrderDTO) => Promise<void>;
   editOrder: (token: string, id: string | number, payload: Partial<Order>) => Promise<void>;
   removeOrder: (token: string, id: string | number) => Promise<void>;
   updateOrderStatus: (token: string, id: string | number, status: OrderStatusType) => Promise<void>;
+  receiveNewOrder: (order: Order) => void;
+  receiveOrderUpdate: (updatedOrder: Order) => void;
 };
 
-export const useOrdersStore = create<OrdersState>()(
-  persist(
-    (set, get) => ({
-      orders: [],
-      loading: false,
-      actionLoading: false,
-      error: null,
+// Hemos eliminado `persist` y `createJSONStorage`
+export const useOrdersStore = create<OrdersState>((set, get) => ({
+  orders: [],
+  loading: false,
+  actionLoading: false,
+  error: null,
 
-      clearOrdersError: () => set({ error: null }),
+  clearOrdersError: () => set({ error: null }),
 
-      fetchOrders: async (token) => {
-        set({ loading: true, error: null });
-        try {
-          const res = await ordersApi.getOrders(token);
-
-          if (res.error) {
-            set({ error: res.message });
-            return;
-          }
-
-          set({ orders: res.data || [] });
-        } finally {
-          set({ loading: false });
-        }
-      },
-
-      addOrder: async (token, payload) => {
-        set({ actionLoading: true, error: null });
-        try {
-          const res = await ordersApi.createOrder(token, payload);
-          
-          if (res.error) {
-            set({ error: res.message });
-            return;
-          }
-
-          if (res.data) set((state) => ({ orders: [...state.orders, res.data!] }));
-        } finally {
-          set({ actionLoading: false });
-        }
-      },
-
-      editOrder: async (token, id, payload) => {
-        set({ actionLoading: true, error: null });
-        try {
-          const res = await ordersApi.updateOrder(token, id, payload);
-          
-          if (res.error) {
-            set({ error: res.message });
-            return;
-          }
-
-          set((state) => ({
-            orders: state.orders.map((o) => (o.id === id ? { ...o, ...res.data } : o)),
-          }));
-        } finally {
-          set({ actionLoading: false });
-        }
-      },
-
-      removeOrder: async (token, id) => {
-        set({ actionLoading: true, error: null });
-        try {
-          const res = await ordersApi.deleteOrder(token, id);
-          
-          if (res.error) {
-            set({ error: res.message });
-            return;
-          }
-          
-          set((state) => ({
-            orders: state.orders.filter((o) => o.id !== id),
-          }));
-        } finally {
-          set({ actionLoading: false });
-        }
-      },
-
-      updateOrderStatus: async (token, id, status) => {
-        set({ actionLoading: true, error: null });
-        try {
-          // Asumimos que puedes hacer un PATCH al estatus usando tu updateOrder
-          // Si tienes un endpoint específico, cámbialo a ordersApi.updateOrderStatus(token, id, status)
-          const res = await ordersApi.updateOrder(token, id, { status });
-          
-          if (res.error) {
-            set({ error: res.message });
-            return;
-          }
-
-          // Actualización optimista o basada en la respuesta
-          set((state) => ({
-            orders: state.orders.map((o) => 
-              // Actualizamos el status localmente para reflejar el cambio en UI de inmediato
-              o.id === id ? { ...o, status } : o
-            ),
-          }));
-        } finally {
-          set({ actionLoading: false });
-        }
-      },
-    }),
-    {
-      name: 'orders-storage',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
-        orders: state.orders,
-      }),
+  fetchOrders: async (token, includePaid: boolean = false) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await ordersApi.getOrders(token, includePaid);
+      if (res.error) {
+        set({ error: res.message });
+        return;
+      }
+      set({ orders: res.data || [] });
+    } finally {
+      set({ loading: false });
     }
-  )
-);
+  },
+
+  addOrder: async (token, payload) => {
+    set({ actionLoading: true, error: null });
+    console.log(payload);
+    console.log(payload.items.map(i => i.features.map(f => `Nombre: ${f.name_tag}, Valor: ${f.value}`)));
+    try {
+      const res = await ordersApi.createOrder(token, payload);
+      if (res.error) {
+        set({ error: res.message });
+        return;
+      }
+      if (res.data) set((state) => ({ orders: [...state.orders, res.data!] }));
+    } finally {
+      set({ actionLoading: false });
+    }
+  },
+
+  editOrder: async (token, id, payload) => {
+    set({ actionLoading: true, error: null });
+    try {
+      const res = await ordersApi.updateOrder(token, id, payload);
+      if (res.error) {
+        set({ error: res.message });
+        return;
+      }
+      set((state) => ({
+        orders: state.orders.map((o) => (o.id === id ? { ...o, ...res.data } : o)),
+      }));
+    } finally {
+      set({ actionLoading: false });
+    }
+  },
+
+  removeOrder: async (token, id) => {
+    set({ actionLoading: true, error: null });
+    try {
+      const res = await ordersApi.deleteOrder(token, id);
+      if (res.error) {
+        set({ error: res.message });
+        return;
+      }
+      set((state) => ({
+        orders: state.orders.filter((o) => o.id !== id),
+      }));
+    } finally {
+      set({ actionLoading: false });
+    }
+  },
+
+  updateOrderStatus: async (token, id, status) => {
+    set({ actionLoading: true, error: null });
+    try {
+      const res = await ordersApi.updateOrder(token, id, { status });
+      if (res.error) {
+        set({ error: res.message });
+        return;
+      }
+      set((state) => ({
+        orders: state.orders.map((o) => 
+          o.id === id ? { ...o, status } : o
+        ),
+      }));
+    } finally {
+      set({ actionLoading: false });
+    }
+  },
+  
+  receiveNewOrder: (order) => {
+    set((state) => {
+      if (state.orders.some((o) => o.id === order.id)) return state;
+      return { orders: [order, ...state.orders] };
+    });
+  },
+
+  receiveOrderUpdate: (updatedOrder) => {
+    set((state) => ({
+      orders: state.orders.map((o) => 
+        o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o
+      ),
+    }));
+  },
+}));

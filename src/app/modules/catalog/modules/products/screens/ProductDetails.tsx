@@ -81,7 +81,6 @@ export default function ProductDetails({ route }: any) {
 
   const currentPrice = calculatePrice();
 
-  // 3. FILTRO DE OPCIONES VISIBLES
   const getVisibleOptions = (tag: NameTag, options: string[]) => {
     const currentSize = selections['SIZE']?.[0] || '';
 
@@ -97,7 +96,6 @@ export default function ProductDetails({ route }: any) {
     return options; 
   };
 
-  // 4. LÓGICA CONDICIONAL DE SELECCIÓN
   const handleToggleOption = (tag: NameTag, option: string, isMulti: boolean) => {
     setSelections((prev) => {
       const currentSize = prev['SIZE']?.[0] || '';
@@ -186,17 +184,19 @@ export default function ProductDetails({ route }: any) {
       return Alert.alert('Atención', 'Debes seleccionar un tipo de salchicha obligatoriamente.');
     }
     
-    const featuresDTO = Object.entries(selections).map(([tag, values]) => ({
-      name_tag: tag as NameTag,
-      value: values.join(','),
-    }));
+    const featuresDTO = Object.entries(selections)
+      .filter(([_, values]) => values && values.length > 0)
+      .map(([tag, values]) => ({
+        name_tag: tag as NameTag,
+        value: values.join(','),
+      }));
 
     const featuresString = [...featuresDTO]
       .sort((a, b) => a.name_tag.localeCompare(b.name_tag))
       .map(f => `${f.name_tag}:${f.value}`)
       .join('|');
       
-    const dynamicCartId = `${product.id}-${featuresString}`;
+    const dynamicCartId = `${product.id}-${featuresString}-${Date.now()}`;
 
     addItem({
       cart_id: dynamicCartId,

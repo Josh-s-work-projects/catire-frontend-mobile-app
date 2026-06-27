@@ -4,8 +4,11 @@ import { Order, OrderDTO } from '../models/Order';
 
 const client = new Api();
 
-const getOrders = async (token: string): Promise<ApiResponse<Order[]>> => {
-  return await client.get<Order[]>('orders', 'orders', token);
+const getOrders = async (token: string, includePaid: boolean = false): Promise<ApiResponse<Order[]>> => {
+  return await client.get<Order[]>(
+    'orders', 'orders', token, undefined, 'includePaid',
+    includePaid ? 'true' : 'false',
+  );
 };
 
 const createOrder = async (token: string, payload: OrderDTO): Promise<ApiResponse<Order>> => {

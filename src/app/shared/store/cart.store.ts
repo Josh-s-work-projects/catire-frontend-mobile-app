@@ -7,6 +7,7 @@ export interface CartItem {
   name: string;
   quantity: number;
   base_price: number;
+  img_src: string;
   features: { name_tag: NameTag; value: string }[];
 }
 
@@ -23,7 +24,6 @@ interface CartState {
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   addItem: (item) => set((state) => {
-    // CORRECCIÓN: Ahora verificamos si ya existe el MISMO cart_id exacto
     const existing = state.items.find(i => i.cart_id === item.cart_id);
     
     if (existing) {

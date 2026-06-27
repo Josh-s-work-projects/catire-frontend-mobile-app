@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../../../shared/store/auth.store';
 import { useOrdersStore } from '../../../store/orders.store';
-import { OrderStatusType } from '../../../../../shared/api/enums';
+import { NameTag, OrderStatusType } from '../../../../../shared/api/enums';
 import { styles } from '../styles/details.styles';
 import { FEATURE_TRANSLATION } from '../../../../catalog/constants/features';
 
 export const OrderDetails = ({ route }: any) => {
   const navigation = useNavigation();
-  
+
   // 1. Obtenemos estado global y token
   const { user, token } = useAuthStore();
   const { updateOrderStatus, actionLoading } = useOrdersStore();
-  
+
   // 2. Estado local para los modales
   const [confirmModal, setConfirmModal] = useState(false);
   const [cancelModal, setCancelModal] = useState(false);
@@ -69,7 +69,7 @@ export const OrderDetails = ({ route }: any) => {
   const handleUpdateStatus = async (newStatus: OrderStatusType) => {
     if (!token) return;
     await updateOrderStatus(token, order.id, newStatus);
-    
+
     setConfirmModal(false);
     setCancelModal(false);
     navigation.goBack(); // Regresa a la lista una vez actualizado
@@ -85,7 +85,7 @@ export const OrderDetails = ({ route }: any) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
+
         {/* TARJETA DE INFORMACIÓN GENERAL */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -96,7 +96,7 @@ export const OrderDetails = ({ route }: any) => {
           </View>
           <View style={styles.cardBody}>
             <Text style={styles.infoText}>📅 <Text style={styles.boldText}>Fecha:</Text> {orderDate}</Text>
-            
+
             {/* Si es vista de empleado, mostramos de quién es la orden */}
             {isEmployee && order.user && (
               <Text style={styles.infoText}>👤 <Text style={styles.boldText}>Cliente:</Text> {order.user.full_name}</Text>
@@ -105,7 +105,7 @@ export const OrderDetails = ({ route }: any) => {
             <Text style={styles.infoText}>
               🚚 <Text style={styles.boldText}>Tipo:</Text> {order.is_delivery ? 'Delivery' : 'Retiro en Local'}
             </Text>
-            
+
             {order.is_delivery && order.address && (
               <View style={styles.addressBox}>
                 <Text style={styles.addressTitle}>📍 Dirección de entrega:</Text>
@@ -139,10 +139,10 @@ export const OrderDetails = ({ route }: any) => {
                 {item.features.map((feature: any, idx: number) => {
                   if (!feature.value) return null;
                   const options = feature.value.split(',');
-                  
+
                   return (
                     <View key={idx} style={styles.featureRow}>
-                      <Text style={styles.featureName}>{FEATURE_TRANSLATION[feature.name_tag]}:</Text>
+                      <Text style={styles.featureName}>{FEATURE_TRANSLATION[feature.name_tag as NameTag]}:</Text>
                       <View style={styles.pillsContainer}>
                         {options.map((opt: string) => (
                           <View key={opt} style={styles.pill}>
@@ -168,15 +168,15 @@ export const OrderDetails = ({ route }: any) => {
 
         {isEmployee && order.status === 'PENDING' && (
           <View style={{ flexDirection: 'row', gap: 10 }}>
-            <TouchableOpacity 
-              style={[styles.actionBtn, { flex: 1, backgroundColor: '#e74c3c', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }]} 
+            <TouchableOpacity
+              style={[styles.actionBtn, { flex: 1, backgroundColor: '#e74c3c', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }]}
               onPress={() => setCancelModal(true)}
             >
               <Text style={{ color: 'white', fontWeight: 'bold' }}>Cancelar</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.actionBtn, { flex: 1, backgroundColor: '#2ecc71', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }]} 
+
+            <TouchableOpacity
+              style={[styles.actionBtn, { flex: 1, backgroundColor: '#2ecc71', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }]}
               onPress={() => setConfirmModal(true)}
             >
               <Text style={{ color: 'white', fontWeight: 'bold' }}>Marcar Pagada</Text>

@@ -124,7 +124,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     await SecureStore.deleteItemAsync('token');
     useCatalogStore.persist.clearStorage();
-    useOrdersStore.persist.clearStorage();
     useFinanceStore.persist.clearStorage();
     set({ token: null, user: null, error: null });
   },

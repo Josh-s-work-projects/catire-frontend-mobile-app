@@ -20,10 +20,16 @@ export class Api {
     });
   }
 
-  async get<R>(service: Services, endpoint: Endpoint, token: string, id?: number | string): Promise<ApiResponse<R>> {
+  async get<R>(
+    service: Services,
+    endpoint: Endpoint,
+    token: string, id?: number | string,
+    queryKey: string = '', queryValue: string = ''
+  ): Promise<ApiResponse<R>> {
     try {
       let route = `${service}/${endpoint}`;
       if(id) route += `/${id}`
+      if(queryKey && queryValue) route += `?${queryKey}=${queryValue}`
 
       const res = await this.apiClient.get(route, {
         headers: { authorization: `Bearer ${token}` }
